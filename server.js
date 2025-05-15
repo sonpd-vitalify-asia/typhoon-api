@@ -1,29 +1,31 @@
 const express = require('express');
+const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+
 const app = express();
 const PORT = 3000;
 
-// GET /api/v1/typhoon/
+// Enable CORS for all routes
+app.use(cors());
+
 app.get('/api/v1/typhoon/', (req, res) => {
   const filePath = path.join(__dirname, 'response.json');
 
   fs.readFile(filePath, 'utf8', (err, data) => {
     if (err) {
-      console.error('Failed to read JSON file:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Could not read file' });
     }
 
     try {
-      const json = JSON.parse(data);
-      res.status(200).json(json);
-    } catch (parseError) {
-      console.error('Failed to parse JSON:', parseError);
-      res.status(500).json({ error: 'Malformed JSON data' });
+      const jsonData = JSON.parse(data);
+      res.json(jsonData);
+    } catch (parseErr) {
+      res.status(500).json({ error: 'Invalid JSON format' });
     }
   });
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server is running at http://localhost:${PORT}/api/v1/typhoon/`);
+  console.log(`Server running at http://localhost:${PORT}/api/v1/typhoon/`);
 });
